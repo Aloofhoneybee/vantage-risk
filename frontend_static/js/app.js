@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     recovery_rate: savedConfig.recoveryRate
                 };
 
-                const response = await fetch('http://localhost:8000/analyze', {
+                const response = await fetch('https://vantage-risk-o2yn.onrender.com/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const auditLogContent = document.getElementById('audit-log-content');
         if (!auditLogContent) return;
 
-        const response = await fetch('http://localhost:8000/audit-summary');
+        const response = await fetch('https://vantage-risk-o2yn.onrender.com/audit-summary');
         if (response.ok) {
             const data = await response.json();
             const logs = data.logs || [];
@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const utilityDistChartCanvas = document.getElementById('utilityDistChart');
     if (utilityDistChartCanvas) {
         // Fetch Metrics
-        fetch('http://localhost:8000/metrics')
+        fetch('https://vantage-risk-o2yn.onrender.com/metrics')
             .then(res => res.json())
             .then(data => {
                 document.getElementById('metric-accuracy').textContent = `${data.accuracy}%`;
@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Try fetch, but fallback if it fails
                 let data;
                 try {
-                    const res = await fetch('http://localhost:8000/run-simulation');
+                    const res = await fetch('https://vantage-risk-o2yn.onrender.com/run-simulation');
                     if (!res.ok) throw new Error("Backend Error");
                     data = await res.json();
                 } catch (fetchError) {
@@ -430,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         async function loadAuditPageData() {
             try {
-                const res = await fetch('http://localhost:8000/audit-summary');
+                const res = await fetch('https://vantage-risk-o2yn.onrender.com/audit-summary');
                 const data = await res.json();
 
                 document.getElementById('total-transactions').textContent = data.total;
