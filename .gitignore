@@ -48,7 +48,6 @@ yarn-error.log*
 *.sqlite3
 
 # Model files (uncomment if you want to track these, usually ignored due to size if large)
-*.pkl
 *.h5
 *.pt
 *.pth
