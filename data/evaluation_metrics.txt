@@ -1,0 +1,19 @@
+VANTAGERISK AI: MODEL EVALUATION REPORT
+=======================================
+Algorithm: Logistic Regression (Scikit-Learn)
+Training Dataset Size: 50,000 observations
+
+Accuracy:  96.22%
+Precision: 93.82%
+Recall:    93.44%
+F1-Score:  0.94
+
+Full Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.97      0.97      0.97      7028
+           1       0.94      0.93      0.94      2972
+
+    accuracy                           0.96     10000
+   macro avg       0.96      0.95      0.95     10000
+weighted avg       0.96      0.96      0.96     10000

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - VantageRisk AI</title>
+  <link rel="icon" href="./images/favicon.ico" />
+  <link href="./css/style.css" rel="stylesheet" />
+  <!-- Recharts is React-only, we might need a different chart lib or custom SVG/Canvas for the line chart. 
+         For simplicity in this static port, I'll use Chart.js if needed or just simulate the chart with SVG or leave a placeholder if strict dependency is needed. 
+         The plan mentions "JavaScript logic implementation", I'll try to replicate the chart using Chart.js or just basic HTML/CSS if it's too complex. 
+         Actually, I'll use Chart.js via CDN for the Decision Frontier. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Preload critical fonts -->
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+
+<body class="bg-background text-foreground font-sans antialiased">
+
+  <!-- Mobile Toggle Button -->
+  <button type="button" id="mobile-menu-toggle"
+    class="fixed top-4 left-4 z-50 md:hidden p-2 rounded-lg glass border border-border/50 hover:border-primary/50 transition-colors bg-slate-900 text-white shadow-lg">
+    <i data-lucide="menu" class="w-5 h-5"></i>
+  </button>
+
+  <!-- Overlay for mobile -->
+  <div id="mobile-overlay"
+    class="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm hidden transition-opacity duration-300"></div>
+
+  <!-- Sidebar Container -->
+  <aside id="sidebar"
+    class="fixed left-0 top-0 h-screen border-r border-border/50 z-40 transition-transform duration-300 ease-in-out flex flex-col bg-slate-950 w-64 md:translate-x-0 -translate-x-full will-change-transform">
+    <!-- Sidebar Header -->
+    <div class="p-4 border-b border-border/50 flex items-center gap-4 min-h-[73px]">
+      <button type="button" id="desktop-sidebar-toggle"
+        class="p-2 hover:bg-white/10 rounded-lg transition-colors text-white">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+
+      <div id="sidebar-logo" class="animate-in fade-in slide-in-from-left-2 duration-300">
+        <h1 class="text-lg font-black text-white tracking-tighter uppercase">VR AI</h1>
+        <p class="text-[10px] text-primary font-bold uppercase tracking-widest">Risk Platform</p>
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="flex-1 overflow-y-auto p-3 space-y-2 mt-4">
+      <a href="index.html"
+        class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative bg-blue-600/10 border border-blue-500/30 text-blue-400">
+        <i data-lucide="layout-dashboard"
+          class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 text-blue-400"></i>
+        <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+          <p class="font-bold text-xs uppercase tracking-tight">Main Dashboard</p>
+          <p class="text-[10px] opacity-50 truncate">Inference engine & decision hub</p>
+        </div>
+      </a>
+      <a href="analytics.html"
+        class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative text-slate-400 hover:bg-white hover:text-black font-medium border border-transparent">
+        <i data-lucide="bar-chart-3" class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110"></i>
+        <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+          <p class="font-bold text-xs uppercase tracking-tight">Analytics Center</p>
+          <p class="text-[10px] opacity-50 truncate">Model performance & metrics</p>
+        </div>
+      </a>
+      <a href="audit-logs.html"
+        class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative text-slate-400 hover:bg-white hover:text-black font-medium border border-transparent">
+        <i data-lucide="shield-check" class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110"></i>
+        <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+          <p class="font-bold text-xs uppercase tracking-tight">Audit Logs</p>
+          <p class="text-[10px] opacity-50 truncate">Transparency & compliance</p>
+        </div>
+      </a>
+
+      <a href="system-health.html"
+        class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative text-slate-400 hover:bg-white hover:text-black font-medium border border-transparent">
+        <i data-lucide="activity" class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110"></i>
+        <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+          <p class="font-bold text-xs uppercase tracking-tight">System Health</p>
+          <p class="text-[10px] opacity-50 truncate">DevOps & infrastructure</p>
+        </div>
+      </a>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="border-t border-border/50 p-4 space-y-2">
+      <div id="sidebar-footer-status" class="flex items-center gap-2">
+        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]">
+        </div>
+        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest sidebar-text">System
+          Operational</p>
+      </div>
+      <p id="sidebar-footer-version" class="text-[10px] text-slate-600 font-mono pl-4 sidebar-text">
+        build_v2.1.0_vNM</p>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div id="main-content"
+    class="flex flex-col min-h-screen transition-[margin] duration-300 md:ml-64 will-change-[margin]">
+
+    <!-- Header -->
+    <header class="border-b border-slate-700/30 bg-background/40 backdrop-blur-xl sticky top-0 z-[30]">
+      <div class="px-4 md:px-6 py-4">
+        <div class="flex items-center justify-between gap-4 md:gap-6">
+
+          <div class="flex items-center gap-4 shrink-0">
+            <div class="flex items-center gap-3 group cursor-pointer" onclick="window.location.href='dashboard.html'">
+              <div class="w-12 h-12 flex items-center justify-center transition-transform group-hover:scale-105">
+                <img src="./images/icon.png" alt="Logo" class="w-full h-full object-contain" />
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-lg text-foreground leading-none tracking-tight">VantageRisk</span>
+                <span class="text-[10px] text-primary font-bold uppercase tracking-[0.2em] mt-1">Decision
+                  AI</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- DYNAMIC SEARCH BAR -->
+
+
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="hidden md:flex items-center gap-2 px-3 py-2 rounded-full glass border border-slate-600/30">
+              <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span class="text-[10px] font-mono text-muted-foreground uppercase">v1.0.4-Logistic
+                Regression</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- MOBILE ONLY SEARCH BAR -->
+
+    </header>
+
+    <main class="flex-1">
+      <!-- Hero Section -->
+      <section class="bg-gradient-to-b from-card/80 to-background border-b border-border/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+          <div class="flex flex-col gap-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 class="text-3xl sm:text-4xl font-bold text-foreground mb-2 text-balance">
+                  Current Risk Environment
+                </h2>
+                <p class="text-muted-foreground text-sm sm:text-base max-w-lg">
+                  Real-time applicant assessment powered by utility-maximization theory
+                </p>
+              </div>
+
+              <!-- Status badge -->
+              <div class="flex items-center gap-3 bg-secondary rounded-lg px-4 py-3 w-fit">
+                <div class="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                <div>
+                  <p class="text-xs font-semibold text-muted-foreground">System Status</p>
+                  <p class="text-sm font-bold text-foreground">Operational</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Info banner -->
+            <div class="mt-6 bg-primary/10 border border-primary/20 rounded-lg p-4 flex gap-3">
+              <i data-lucide="alert-circle" class="w-5 h-5 text-primary flex-shrink-0 mt-0.5"></i>
+              <div class="text-sm text-foreground">
+                <p class="font-semibold mb-1">About VantageRisk AI</p>
+                <p class="text-muted-foreground">
+                  VantageRisk AI implements the Von Neumann-Morgenstern (vNM) Expected Utility
+                  framework, the gold standard for rational decision-making under uncertainty. The
+                  system doesn't merely classify risk; it optimizes institutional utility. By weighing
+                  the stochastic probability of default against potential interest yield adjusted by
+                  your real-time Risk-Aversion Coefficient (λ) the engine identifies 'Hidden Gem'
+                  borrowers while ensuring capital preservation in volatile market conditions.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Interface -->
+      <section class="bg-background py-8 lg:py-12 space-y-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            <!-- Input Form -->
+            <div>
+              <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span
+                  class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold">1</span>
+                Input Engine
+              </h3>
+
+              <div class="p-6 border border-border glass hover:border-primary/40 transition-all rounded-lg">
+                <form id="analysis-form" class="space-y-6">
+                  <!-- ANNUAL INCOME -->
+                  <div class="space-y-2">
+                    <div class="flex justify-between items-center text-sm font-semibold">
+                      <div class="flex items-center gap-2"><i data-lucide="wallet"
+                          class="w-4 h-4 text-primary"></i>Annual Income</div>
+                      <span class="text-muted-foreground" id="disp-income">$75K</span>
+                    </div>
+                    <input type="number" id="input-income" value="75000"
+                      class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors md:text-sm glass-sm text-foreground" />
+                    <input type="range" id="slider-income" min="20000" max="500000" step="5000" value="75000"
+                      class="w-full" />
+                  </div>
+
+                  <!-- FICO SCORE -->
+                  <div class="space-y-2">
+                    <div class="flex justify-between items-center text-sm font-semibold">
+                      <div class="flex items-center gap-2"><i data-lucide="shield" class="w-4 h-4 text-primary"></i>FICO
+                        Credit Score</div>
+                      <span class="text-muted-foreground" id="disp-fico">710</span>
+                    </div>
+                    <input type="number" id="input-fico" value="710"
+                      class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors md:text-sm glass-sm text-foreground" />
+                    <input type="range" id="slider-fico" min="300" max="850" step="5" value="710" class="w-full" />
+                  </div>
+
+                  <!-- DTI RATIO -->
+                  <div class="space-y-2">
+                    <div class="flex justify-between items-center text-sm font-semibold">
+                      <div class="flex items-center gap-2"><i data-lucide="scale" class="w-4 h-4 text-primary"></i>DTI
+                        Ratio (%)</div>
+                      <span class="text-muted-foreground" id="disp-dti">35%</span>
+                    </div>
+                    <input type="range" id="slider-dti" min="0" max="100" step="1" value="35" class="w-full" />
+                  </div>
+
+                  <!-- LOAN AMOUNT -->
+                  <div class="space-y-2">
+                    <div class="flex justify-between items-center text-sm font-semibold">
+                      <div class="flex items-center gap-2"><i data-lucide="trending-up"
+                          class="w-4 h-4 text-primary"></i>Loan Amount</div>
+                      <span class="text-muted-foreground" id="disp-loan">15K</span>
+                    </div>
+                    <input type="range" id="slider-loan" min="1000" max="50000" step="500" value="15000"
+                      class="w-full" />
+                  </div>
+
+                  <!-- RISK AVERSION -->
+                  <div class="mt-8 pt-6 border-t border-border">
+                    <div class="glass-sm p-4 rounded-lg space-y-4">
+                      <div class="flex justify-between items-center font-bold">
+                        <div class="flex items-center gap-2"><i data-lucide="zap"
+                            class="w-4 h-4 text-primary"></i>Risk-Aversion Coefficient (λ)
+                        </div>
+                        <span class="bg-primary/30 px-3 py-1 rounded-full text-sm" id="disp-lambda">2.5</span>
+                      </div>
+                      <input type="range" id="slider-lambda" min="1.0" max="5.0" step="0.1" value="2.5"
+                        class="w-full" />
+                      <div class="flex justify-between text-[10px] text-muted-foreground font-bold uppercase">
+                        <span class="text-success">Aggressive</span>
+                        <span>Balanced</span>
+                        <span class="text-destructive">Conservative</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button type="submit" id="submit-btn"
+                    class="w-full bg-white text-black py-6 font-bold text-lg shadow-lg rounded-md cursor-pointer transition-all hover:shadow-[0_4px_20px_rgba(255,255,255,0.5)] hover:-translate-y-1">
+                    Analyze & Make Decision
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Decision Hub -->
+            <div>
+              <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                <span
+                  class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold">2</span>
+                AI Decision Hub
+              </h3>
+
+              <div id="decision-loading"
+                class="hidden p-8 border border-border glass flex items-center justify-center min-h-96 rounded-lg">
+                <div class="text-center space-y-4">
+                  <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto">
+                  </div>
+                  <p class="text-muted-foreground font-medium">Analyzing applicant profile...</p>
+                  <p class="text-xs text-muted-foreground">Computing utility-maximized decision</p>
+                </div>
+              </div>
+
+              <div id="decision-placeholder"
+                class="p-8 border border-border glass border-dashed flex items-center justify-center min-h-96 rounded-lg">
+                <div class="text-center space-y-3">
+                  <div class="text-4xl text-muted-foreground/30">⬇️</div>
+                  <p class="text-muted-foreground font-medium">Submit applicant data above</p>
+                  <p class="text-xs text-muted-foreground">Results will appear here</p>
+                </div>
+              </div>
+
+              <div id="decision-content" class="hidden space-y-4">
+                <!-- Content inserted via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Trail -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <span
+              class="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold">3</span>
+            System Audit Trail
+          </h3>
+
+          <div class="p-4 border border-border glass bg-slate-900/40 backdrop-blur-md rounded-lg">
+            <div class="space-y-3">
+              <div>
+                <p class="text-xs font-semibold text-primary uppercase mb-2 tracking-widest">
+                  System Audit Log (SQLite Instance)
+                </p>
+                <p class="text-[10px] text-muted-foreground mb-3 italic">
+                  Search active. Use global bar above to query by FICO or Verdict.
+                </p>
+              </div>
+
+              <div id="audit-scroll-area"
+                class="h-48 border border-primary/20 rounded-lg bg-black/40 p-3 shadow-inner overflow-y-auto">
+                <div id="audit-log-content" class="space-y-1 font-mono text-[11px]">
+                  <!-- Filled by JS -->
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between text-[10px] text-muted-foreground font-mono">
+                <span id="audit-results-count">Results: 0</span>
+                <span class="flex items-center gap-1 text-blue-400">
+                  <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                  Sync: Real-time Database Ledger
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Theory Corner -->
+      <section class="bg-secondary/30 border-t border-border py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-start gap-3 mb-6">
+            <i data-lucide="book-open" class="w-6 h-6 text-primary flex-shrink-0 mt-0.5"></i>
+            <h2 class="text-2xl font-bold text-foreground">Theory Corner</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Main Theory Card -->
+            <div class="p-6 border border-border bg-card rounded-lg shadow-sm">
+              <h3 class="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                <span class="text-primary">📊</span>
+                Von Neumann-Morgenstern Utility Theory
+              </h3>
+              <p class="text-sm text-muted-foreground leading-relaxed mb-4">
+                VantageRisk AI employs the Von Neumann-Morgenstern Expected Utility (vNM EU) framework,
+                a foundational
+                economic theory that demonstrates rational decision-makers maximize expected utility
+                under uncertainty.
+              </p>
+              <div class="bg-secondary/50 rounded-lg p-4 space-y-3">
+                <div>
+                  <p class="text-xs font-mono text-primary mb-2">Expected Utility Formula</p>
+                  <p class="text-sm text-foreground font-semibold font-mono">
+                    EU = [P(Success) × Profit] - [P(Default) × Principal Loss × λ]
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-muted-foreground font-medium mb-1">Where:</p>
+                  <ul class="text-xs text-muted-foreground space-y-1">
+                    <li>P(Success) = probability of on-time repayment</li>
+                    <li>Profit = expected interest earnings</li>
+                    <li>P(Default) = probability of default</li>
+                    <li>Principal Loss = loan amount at risk</li>
+                    <li>λ = risk-aversion coefficient (1.0-5.0)</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lambda Control Card -->
+            <div class="p-6 border border-border bg-card rounded-lg shadow-sm">
+              <h3 class="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                <span class="text-primary">⚖️</span>
+                Risk-Aversion Coefficient (λ)
+              </h3>
+              <p class="text-sm text-muted-foreground leading-relaxed mb-4">
+                The λ parameter controls the system's risk tolerance. It acts as a scaling factor on
+                your organization's
+                risk profile, allowing dynamic adjustment of approval thresholds without retraining
+                models.
+              </p>
+              <div class="space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-muted-foreground font-medium">λ = 1.0 (Aggressive)</span>
+                  <span class="text-primary font-semibold">↑ Approvals</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-muted-foreground font-medium">λ = 3.0 (Balanced)</span>
+                  <span class="text-primary font-semibold">⚖️ Equilibrium</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                  <span class="text-muted-foreground font-medium">λ = 5.0 (Conservative)</span>
+                  <span class="text-primary font-semibold">↓ Approvals</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Decision Framework Card -->
+            <div class="p-6 border border-border bg-card rounded-lg shadow-sm">
+              <h3 class="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                <span class="text-primary">🔄</span>
+                How Decisions Are Made
+              </h3>
+              <div class="space-y-3">
+                <div class="flex gap-3">
+                  <div
+                    class="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    1
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-foreground">Input Processing</p>
+                    <p class="text-xs text-muted-foreground">Applicant data normalized and validated
+                    </p>
+                  </div>
+                </div>
+                <div class="flex gap-3">
+                  <div
+                    class="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    2
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-foreground">Utility Calculation</p>
+                    <p class="text-xs text-muted-foreground">Expected utility computed with vNM
+                      framework</p>
+                  </div>
+                </div>
+                <div class="flex gap-3">
+                  <div
+                    class="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    3
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-foreground">Risk Adjustment</p>
+                    <p class="text-xs text-muted-foreground">Utility scaled by λ coefficient</p>
+                  </div>
+                </div>
+                <div class="flex gap-3">
+                  <div
+                    class="w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    4
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold text-foreground">Decision Output</p>
+                    <p class="text-xs text-muted-foreground">APPROVE or REJECT with confidence
+                      metrics</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Best Practices Card -->
+            <div class="p-6 border border-border bg-card rounded-lg shadow-sm">
+              <h3 class="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                <span class="text-primary">✨</span>
+                Best Practices
+              </h3>
+              <ul class="space-y-2 text-sm">
+                <li class="flex gap-2">
+                  <span class="text-primary font-bold">•</span>
+                  <span class="text-muted-foreground">
+                    Start with λ = 3.0 for balanced decision-making
+                  </span>
+                </li>
+                <li class="flex gap-2">
+                  <span class="text-primary font-bold">•</span>
+                  <span class="text-muted-foreground">
+                    Monitor approval rates when adjusting λ
+                  </span>
+                </li>
+                <li class="flex gap-2">
+                  <span class="text-primary font-bold">•</span>
+                  <span class="text-muted-foreground">
+                    Cross-reference with audit logs for compliance
+                  </span>
+                </li>
+                <li class="flex gap-2">
+                  <span class="text-primary font-bold">•</span>
+                  <span class="text-muted-foreground">
+                    Update model quarterly with new performance data
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Footer note -->
+          <div class="mt-8 p-4 rounded-lg bg-primary/5 border border-primary/20">
+            <p class="text-xs text-muted-foreground">
+              <span class="font-semibold text-foreground">Disclaimer:</span> VantageRisk AI provides
+              recommendations
+              based on utility theory. Final lending decisions should incorporate domain expertise,
+              compliance requirements,
+              and organizational risk policies.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-border bg-secondary/20 text-center py-6">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-3 items-center justify-center">
+          <p class="text-sm text-muted-foreground">
+            VantageRisk AI - Risk-Aware Utility-Based Decision System
+          </p>
+          <div class="flex items-center gap-4 text-xs text-muted-foreground">
+            <span>© 2026 VantageRisk</span>
+            <span>•</span>
+            <span>Built By Group 16</span>
+          </div>
+          <p class="text-xs text-muted-foreground/70">
+            Banking-grade risk assessment powered by Von Neumann-Morgenstern utility theory
+          </p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./js/app.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>

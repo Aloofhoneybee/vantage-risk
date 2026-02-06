@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics - VantageRisk AI</title>
+    <link rel="icon" href="./images/favicon.ico" />
+    <link href="./css/style.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Preload critical fonts -->
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+
+<body class="bg-background text-foreground font-sans antialiased">
+
+    <!-- Mobile Toggle Button -->
+    <button type="button" id="mobile-menu-toggle"
+        class="fixed top-4 left-4 z-50 md:hidden p-2 rounded-lg glass border border-border/50 hover:border-primary/50 transition-colors bg-slate-900 text-white shadow-lg">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+
+    <!-- Overlay for mobile -->
+    <div id="mobile-overlay"
+        class="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm hidden transition-opacity duration-300"></div>
+
+    <!-- Sidebar Container -->
+    <aside id="sidebar"
+        class="fixed left-0 top-0 h-screen border-r border-border/50 z-40 transition-[transform,width] duration-300 ease-in-out flex flex-col bg-slate-950 w-64 md:translate-x-0 -translate-x-full will-change-transform">
+        <!-- Sidebar Header -->
+        <div class="p-4 border-b border-border/50 flex items-center gap-4 min-h-[73px]">
+            <button type="button" id="desktop-sidebar-toggle"
+                class="p-2 hover:bg-white/10 rounded-lg transition-colors text-white">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+
+            <div id="sidebar-logo" class="animate-in fade-in slide-in-from-left-2 duration-300">
+                <h1 class="text-lg font-black text-white tracking-tighter uppercase">VR AI</h1>
+                <p class="text-[10px] text-primary font-bold uppercase tracking-widest">Risk Platform</p>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 overflow-y-auto p-3 space-y-2 mt-4">
+            <a href="index.html"
+                class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative text-slate-400 hover:bg-white hover:text-black font-medium border border-transparent">
+                <i data-lucide="layout-dashboard"
+                    class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110"></i>
+                <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <p class="font-bold text-xs uppercase tracking-tight">Main Dashboard</p>
+                    <p class="text-[10px] opacity-50 truncate">Inference engine & decision hub</p>
+                </div>
+            </a>
+            <a href="analytics.html"
+                class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative bg-blue-600/10 border border-blue-500/30 text-blue-400">
+                <i data-lucide="bar-chart-3"
+                    class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 text-blue-400"></i>
+                <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <p class="font-bold text-xs uppercase tracking-tight">Analytics Center</p>
+                    <p class="text-[10px] opacity-50 truncate">Model performance & metrics</p>
+                </div>
+            </a>
+            <a href="audit-logs.html"
+                class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative text-slate-400 hover:bg-white hover:text-black font-medium border border-transparent">
+                <i data-lucide="shield-check"
+                    class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110"></i>
+                <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <p class="font-bold text-xs uppercase tracking-tight">Audit Logs</p>
+                    <p class="text-[10px] opacity-50 truncate">Transparency & compliance</p>
+                </div>
+            </a>
+
+            <a href="system-health.html"
+                class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative text-slate-400 hover:bg-white hover:text-black font-medium border border-transparent">
+                <i data-lucide="activity" class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110"></i>
+                <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <p class="font-bold text-xs uppercase tracking-tight">System Health</p>
+                    <p class="text-[10px] opacity-50 truncate">DevOps & infrastructure</p>
+                </div>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="border-t border-border/50 p-4 space-y-2">
+            <div id="sidebar-footer-status" class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]">
+                </div>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest sidebar-text">System
+                    Operational</p>
+            </div>
+            <p id="sidebar-footer-version" class="text-[10px] text-slate-600 font-mono pl-4 sidebar-text">
+                build_v2.1.0_vNM</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div id="main-content"
+        class="flex flex-col min-h-screen transition-[margin] duration-300 md:ml-64 will-change-[margin]">
+
+        <header class="border-b border-slate-700/30 bg-background/40 backdrop-blur-xl sticky top-0 z-[30]">
+            <div class="px-4 md:px-6 py-4">
+                <div class="flex items-center justify-between gap-4 md:gap-6">
+                    <!-- Header Content similar to Dashboard but simpler for now -->
+                    <div class="flex items-center gap-4 shrink-0">
+                        <div class="flex items-center gap-3 group cursor-pointer"
+                            onclick="window.location.href='dashboard.html'">
+                            <div
+                                class="w-12 h-12 flex items-center justify-center transition-transform group-hover:scale-105">
+                                <img src="./images/icon.png" alt="Logo" class="w-full h-full object-contain" />
+                            </div>
+                            <div class="flex flex-col">
+                                <span
+                                    class="font-bold text-lg text-foreground leading-none tracking-tight">VantageRisk</span>
+                                <span
+                                    class="text-[10px] text-primary font-bold uppercase tracking-[0.2em] mt-1">Decision
+                                    AI</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- DYNAMIC SEARCH BAR -->
+
+                </div>
+            </div>
+            <!-- MOBILE ONLY SEARCH BAR -->
+
+        </header>
+
+        <main class="flex-1 p-6 lg:p-10 max-w-[1600px] mx-auto w-full space-y-10 animate-in fade-in duration-500">
+
+            <!-- Page Header -->
+            <div class="flex justify-between items-end">
+                <div>
+                    <h1 class="text-4xl font-black tracking-tighter text-foreground">Analytics Center</h1>
+                    <p class="text-slate-500 font-medium uppercase tracking-[0.2em] text-xs mt-1">Experimental
+                        Evaluation Ledger</p>
+                </div>
+                <div class="hidden md:flex gap-2">
+                    <div
+                        class="bg-blue-600/10 border border-blue-500/20 px-3 py-1 rounded text-[10px] font-bold text-blue-400 uppercase tracking-widest animate-pulse">
+                        Live Backend Link: Active</div>
+                    <div
+                        class="bg-slate-900 border border-slate-800 px-3 py-1 rounded text-[10px] font-bold text-slate-500 tracking-tighter uppercase">
+                        Topic 16 - vNM Utility</div>
+                </div>
+            </div>
+
+            <!-- 1. KPI CARDS -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div
+                    class="glass p-6 border border-slate-800 bg-slate-900/40 relative overflow-hidden group rounded-lg">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-50"></div>
+                    <p class="text-[10px] text-slate-500 uppercase font-black mb-1 tracking-widest">Model Accuracy</p>
+                    <p class="text-4xl font-black text-blue-500" id="metric-accuracy">---</p>
+                    <div
+                        class="mt-4 flex items-center gap-1 text-[10px] text-slate-600 font-bold uppercase italic underline decoration-blue-500/30">
+                        LendingClub Verified</div>
+                </div>
+
+                <div
+                    class="glass p-6 border border-slate-800 bg-slate-900/40 relative overflow-hidden group rounded-lg">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-green-500 opacity-50"></div>
+                    <p class="text-[10px] text-slate-500 uppercase font-black mb-1 tracking-widest">Precision Score</p>
+                    <p class="text-4xl font-black text-green-500" id="metric-precision">---</p>
+                    <div class="mt-4 flex items-center gap-1 text-[10px] text-slate-600 font-bold uppercase italic">
+                        False Positive Mitigation</div>
+                </div>
+
+                <div
+                    class="glass p-6 border border-slate-800 bg-slate-900/40 relative overflow-hidden group rounded-lg">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-purple-500 opacity-50"></div>
+                    <p class="text-[10px] text-slate-500 uppercase font-black mb-1 tracking-widest">Recall Rating</p>
+                    <p class="text-4xl font-black text-purple-500" id="metric-recall">---</p>
+                    <div class="mt-4 flex items-center gap-1 text-[10px] text-slate-600 font-bold uppercase italic">
+                        Capture Sensitivity</div>
+                </div>
+
+                <div
+                    class="glass p-6 border border-slate-800 bg-slate-900/40 relative overflow-hidden group rounded-lg">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-yellow-500 opacity-50"></div>
+                    <p class="text-[10px] text-slate-500 uppercase font-black mb-1 tracking-widest">Harmonic F1</p>
+                    <p class="text-4xl font-black text-yellow-500" id="metric-f1">---</p>
+                    <div class="mt-4 flex items-center gap-1 text-[10px] text-slate-600 font-bold uppercase italic">
+                        Balanced Inference</div>
+                </div>
+            </div>
+
+
+
+            <!-- 3. FULL CHARTS GRID -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="glass p-8 border border-slate-800 bg-slate-900/40 rounded-3xl">
+                    <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                        <i data-lucide="activity" class="w-5 h-5 text-blue-500"></i> Utility Distribution
+                    </h2>
+                    <div class="h-[300px]">
+                        <canvas id="utilityDistChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass p-8 border border-slate-800 bg-slate-900/40 rounded-3xl">
+                    <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-green-500"></i> Profitability Frontier
+                    </h2>
+                    <div class="h-[300px]">
+                        <canvas id="profitFrontierChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. CONFUSION MATRIX GRID -->
+            <div class="glass p-8 border border-slate-800 bg-slate-900/40 rounded-3xl">
+                <h2 class="text-xl font-bold mb-8 uppercase tracking-widest text-slate-500">Model Performance Matrix
+                </h2>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div
+                        class="bg-slate-950/50 p-6 rounded-[1.5rem] border border-white/5 group hover:border-blue-500/30 transition-all">
+                        <p class="text-[10px] text-green-500 uppercase font-black mb-3 tracking-[0.2em]">True Positive
+                        </p>
+                        <p class="text-4xl font-black tracking-tighter text-white">385</p>
+                        <div class="w-full bg-slate-800 h-1 rounded-full mt-4 overflow-hidden">
+                            <div class="h-full bg-blue-500/50 w-[40%]"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-slate-950/50 p-6 rounded-[1.5rem] border border-white/5 group hover:border-blue-500/30 transition-all">
+                        <p class="text-[10px] text-yellow-500 uppercase font-black mb-3 tracking-[0.2em]">False Positive
+                        </p>
+                        <p class="text-4xl font-black tracking-tighter text-white">45</p>
+                        <div class="w-full bg-slate-800 h-1 rounded-full mt-4 overflow-hidden">
+                            <div class="h-full bg-blue-500/50 w-[10%]"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-slate-950/50 p-6 rounded-[1.5rem] border border-white/5 group hover:border-blue-500/30 transition-all">
+                        <p class="text-[10px] text-red-500 uppercase font-black mb-3 tracking-[0.2em]">False Negative
+                        </p>
+                        <p class="text-4xl font-black tracking-tighter text-white">28</p>
+                        <div class="w-full bg-slate-800 h-1 rounded-full mt-4 overflow-hidden">
+                            <div class="h-full bg-blue-500/50 w-[5%]"></div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-slate-950/50 p-6 rounded-[1.5rem] border border-white/5 group hover:border-blue-500/30 transition-all">
+                        <p class="text-[10px] text-blue-500 uppercase font-black mb-3 tracking-[0.2em]">True Negative
+                        </p>
+                        <p class="text-4xl font-black tracking-tighter text-white">342</p>
+                        <div class="w-full bg-slate-800 h-1 rounded-full mt-4 overflow-hidden">
+                            <div class="h-full bg-blue-500/50 w-[38%]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="./js/app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>System Health - VantageRisk AI</title>
+    <link rel="icon" href="./images/favicon.ico" />
+    <link href="./css/style.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+
+<body class="bg-background text-foreground font-sans antialiased">
+
+    <!-- Mobile Toggle Button -->
+    <button type="button" id="mobile-menu-toggle"
+        class="fixed top-4 left-4 z-50 md:hidden p-2 rounded-lg glass border border-border/50 hover:border-primary/50 transition-colors bg-slate-900 text-white shadow-lg">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+
+    <!-- Overlay for mobile -->
+    <div id="mobile-overlay"
+        class="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm hidden transition-opacity duration-300"></div>
+
+    <!-- Sidebar Container -->
+    <aside id="sidebar"
+        class="fixed left-0 top-0 h-screen border-r border-border/50 z-40 transition-[transform,width] duration-300 ease-in-out flex flex-col bg-slate-950 w-64 md:translate-x-0 -translate-x-full will-change-transform">
+        <!-- Sidebar Header -->
+        <div class="p-4 border-b border-border/50 flex items-center gap-4 min-h-[73px]">
+            <button type="button" id="desktop-sidebar-toggle"
+                class="p-2 hover:bg-white/10 rounded-lg transition-colors text-white">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+
+            <div id="sidebar-logo" class="animate-in fade-in slide-in-from-left-2 duration-300">
+                <h1 class="text-lg font-black text-white tracking-tighter uppercase">VR AI</h1>
+                <p class="text-[10px] text-primary font-bold uppercase tracking-widest">Risk Platform</p>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 overflow-y-auto p-3 space-y-2 mt-4">
+            <a href="index.html"
+                class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative text-slate-400 hover:bg-white hover:text-black font-medium border border-transparent">
+                <i data-lucide="layout-dashboard"
+                    class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110"></i>
+                <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <p class="font-bold text-xs uppercase tracking-tight">Main Dashboard</p>
+                    <p class="text-[10px] opacity-50 truncate">Inference engine & decision hub</p>
+                </div>
+            </a>
+            <a href="analytics.html"
+                class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative text-slate-400 hover:bg-white hover:text-black font-medium border border-transparent">
+                <i data-lucide="bar-chart-3"
+                    class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110"></i>
+                <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <p class="font-bold text-xs uppercase tracking-tight">Analytics Center</p>
+                    <p class="text-[10px] opacity-50 truncate">Model performance & metrics</p>
+                </div>
+            </a>
+            <a href="audit-logs.html"
+                class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative text-slate-400 hover:bg-white hover:text-black font-medium border border-transparent">
+                <i data-lucide="shield-check"
+                    class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110"></i>
+                <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <p class="font-bold text-xs uppercase tracking-tight">Audit Logs</p>
+                    <p class="text-[10px] opacity-50 truncate">Transparency & compliance</p>
+                </div>
+            </a>
+
+            <a href="system-health.html"
+                class="flex items-center gap-3 p-3 rounded-xl transition-colors duration-200 group relative bg-blue-600/10 border border-blue-500/30 text-blue-400">
+                <i data-lucide="activity"
+                    class="w-5 h-5 flex-shrink-0 transition-transform group-hover:scale-110 text-blue-400"></i>
+                <div class="sidebar-text min-w-0 animate-in fade-in slide-in-from-left-2 duration-300">
+                    <p class="font-bold text-xs uppercase tracking-tight">System Health</p>
+                    <p class="text-[10px] opacity-50 truncate">DevOps & infrastructure</p>
+                </div>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="border-t border-border/50 p-4 space-y-2">
+            <div id="sidebar-footer-status" class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]">
+                </div>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest sidebar-text">System
+                    Operational</p>
+            </div>
+            <p id="sidebar-footer-version" class="text-[10px] text-slate-600 font-mono pl-4 sidebar-text">
+                build_v2.1.0_vNM</p>
+        </div>
+    </aside>
+
+    <div id="main-content"
+        class="flex flex-col min-h-screen transition-[margin] duration-300 md:ml-64 will-change-[margin]">
+        <!-- Use Header similar structure (simplified) -->
+        <header class="border-b border-slate-700/30 bg-background/40 backdrop-blur-xl sticky top-0 z-[30]">
+            <div class="px-4 md:px-6 py-4">
+                <div class="flex items-center gap-4 shrink-0">
+                    <div class="flex items-center gap-3 group cursor-pointer"
+                        onclick="window.location.href='dashboard.html'">
+                        <div
+                            class="w-12 h-12 flex items-center justify-center transition-transform group-hover:scale-105">
+                            <img src="./images/icon.png" alt="Logo" class="w-full h-full object-contain" />
+                        </div>
+                        <div class="flex flex-col">
+                            <span
+                                class="font-bold text-lg text-foreground leading-none tracking-tight">VantageRisk</span>
+                            <span class="text-[10px] text-primary font-bold uppercase tracking-[0.2em] mt-1">Decision
+                                AI</span>
+                        </div>
+                    </div>
+                    <!-- DYNAMIC SEARCH BAR -->
+
+                </div>
+            </div>
+            <!-- MOBILE ONLY SEARCH BAR -->
+
+        </header>
+
+        <main class="flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-500">
+            <div>
+                <h1 class="text-3xl font-bold text-foreground mb-2">System Health</h1>
+                <p class="text-muted-foreground">Real-time infrastructure and performance monitoring</p>
+            </div>
+
+            <!-- Overall Status -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass p-4 border border-border/50 rounded-lg">
+                    <p class="text-xs text-muted-foreground uppercase mb-2">Uptime</p>
+                    <p class="text-3xl font-bold text-success numeric">99.97%</p>
+                    <p class="text-xs text-muted-foreground mt-2">Last 30 days</p>
+                </div>
+                <div class="glass p-4 border border-border/50 rounded-lg">
+                    <p class="text-xs text-muted-foreground uppercase mb-2">Requests/sec</p>
+                    <p class="text-3xl font-bold text-primary numeric">1245</p>
+                    <p class="text-xs text-muted-foreground mt-2">Current throughput</p>
+                </div>
+                <div class="glass p-4 border border-border/50 rounded-lg">
+                    <p class="text-xs text-muted-foreground uppercase mb-2">Total Requests</p>
+                    <p class="text-3xl font-bold text-foreground numeric">15.3M</p>
+                    <p class="text-xs text-muted-foreground mt-2">This month</p>
+                </div>
+                <div class="glass p-4 border border-border/50 rounded-lg">
+                    <p class="text-xs text-muted-foreground uppercase mb-2">Last Incident</p>
+                    <p class="text-3xl font-bold text-foreground">3 days ago</p>
+                    <p class="text-xs text-muted-foreground mt-2">Resolved incident</p>
+                </div>
+            </div>
+
+            <!-- System Metrics GRID -->
+            <div class="space-y-4" id="metrics-container">
+                <!-- Metrics will be injected here by JS -->
+                <!-- Template for metric card -->
+                <!-- 
+             <div class="glass p-6 border border-border/50 space-y-4 rounded-lg">
+                 <div class="flex items-start justify-between">...Header...</div>
+                 <div class="h-[150px]"><canvas id="chart-metric-1"></canvas></div>
+             </div>
+             -->
+            </div>
+
+            <!-- Service Dependencies -->
+            <div class="glass p-6 border border-border/50 space-y-4 rounded-lg">
+                <h2 class="text-lg font-semibold text-foreground">Service Dependencies</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div class="glass-sm p-3 rounded border border-border/30 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-foreground">SQLite Database</p>
+                            <p class="text-xs text-muted-foreground">2ms</p>
+                        </div>
+                        <i data-lucide="check-circle" class="w-4 h-4 text-success flex-shrink-0"></i>
+                    </div>
+                    <div class="glass-sm p-3 rounded border border-border/30 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-foreground">Redis Cache</p>
+                            <p class="text-xs text-muted-foreground">0.8ms</p>
+                        </div>
+                        <i data-lucide="check-circle" class="w-4 h-4 text-success flex-shrink-0"></i>
+                    </div>
+                    <div class="glass-sm p-3 rounded border border-border/30 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-foreground">Authentication Service</p>
+                            <p class="text-xs text-muted-foreground">15ms</p>
+                        </div>
+                        <i data-lucide="check-circle" class="w-4 h-4 text-success flex-shrink-0"></i>
+                    </div>
+                    <div class="glass-sm p-3 rounded border border-border/30 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-foreground">Model Inference Engine</p>
+                            <p class="text-xs text-muted-foreground">127ms</p>
+                        </div>
+                        <i data-lucide="check-circle" class="w-4 h-4 text-success flex-shrink-0"></i>
+                    </div>
+                    <div class="glass-sm p-3 rounded border border-border/30 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-foreground">Message Queue</p>
+                            <p class="text-xs text-muted-foreground">5ms</p>
+                        </div>
+                        <i data-lucide="check-circle" class="w-4 h-4 text-success flex-shrink-0"></i>
+                    </div>
+                    <div class="glass-sm p-3 rounded border border-border/30 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-foreground">Logging Pipeline</p>
+                            <p class="text-xs text-muted-foreground">12ms</p>
+                        </div>
+                        <i data-lucide="check-circle" class="w-4 h-4 text-success flex-shrink-0"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <div class="glass p-6 border border-border/50 space-y-4 rounded-lg">
+                <h2 class="text-lg font-semibold text-foreground">Active Alerts</h2>
+                <div class="space-y-2">
+                    <div class="glass-sm p-3 rounded border border-yellow-500/30 bg-yellow-500/5 flex gap-3">
+                        <i data-lucide="alert-circle" class="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5"></i>
+                        <div class="text-sm">
+                            <p class="font-medium text-yellow-300">CPU Usage Alert</p>
+                            <p class="text-xs text-yellow-200/70">CPU usage exceeded 60% threshold. Consider scaling up.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="glass-sm p-3 rounded border border-green-500/30 bg-green-500/5 flex gap-3">
+                        <i data-lucide="check-circle" class="w-4 h-4 text-success flex-shrink-0 mt-0.5"></i>
+                        <div class="text-sm">
+                            <p class="font-medium text-success">All Systems Nominal</p>
+                            <p class="text-xs text-green-200/70">No critical issues detected. Last check: just now.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="./js/app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
