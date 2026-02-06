@@ -43,10 +43,6 @@ yarn-error.log*
 .npm
 .eslintcache
 
-# Database
-*.db
-*.sqlite3
-
 # Model files (uncomment if you want to track these, usually ignored due to size if large)
 *.h5
 *.pt
