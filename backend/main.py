@@ -28,7 +28,7 @@ app = FastAPI(
 )
 
 # Enable Cross-Origin Resource Sharing (CORS) 
-# This allows your Next.js Frontend (Port 3000) to communicate with this API (Port 8000)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
